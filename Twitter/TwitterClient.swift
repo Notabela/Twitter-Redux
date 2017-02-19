@@ -72,13 +72,24 @@ class TwitterClient: BDBOAuth1SessionManager
 
     }
     
-    func homeTimeLine(success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ())
+    func logout()
     {
-        get("1.1/statuses/home_timeline.json", parameters: nil, progress: nil, success: {
+        User.currentUser = nil
+        deauthorize()
+        
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: User.userDidLogoutNotification), object: nil)
+    }
+    
+    func homeTimeLine(max_id: Int64 = 0, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ())
+    {
+        
+        let callParameters = max_id > 0 ? ["max_id" : max_id] : nil
+        
+        get("1.1/statuses/home_timeline.json", parameters: callParameters, progress: nil, success: {
             
             (task: URLSessionDataTask, response: Any?) -> Void in
             
-            let tweets = Tweet.tweetsWithArray(response as! [Dictionary<String, Any>])
+            let tweets = Tweet.tweetsWithArray(response as! [NSDictionary])
             success(tweets)
             
         }, failure: {
@@ -90,12 +101,34 @@ class TwitterClient: BDBOAuth1SessionManager
 
     }
     
-    func logout()
+    func userTimeline(screen_name: String, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ())
     {
-        User.currentUser = nil
-        deauthorize()
-        
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: User.userDidLogoutNotification), object: nil)
+        get("1.1/statuses/user_timeline.json?screen_name=\(screen_name)", parameters: nil, progress: nil, success: {
+            
+            (task: URLSessionDataTask, response: Any?) -> Void in
+            
+            let tweets = Tweet.tweetsWithArray(response as! [NSDictionary])
+            success(tweets)
+            
+        }, failure: {
+            
+            (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        })
+    }
+    
+    func lookupUser(screen_name: String, success: @escaping (TwitterUser) -> (), failure: @escaping (Error) -> ())
+    {
+        get("1.1/users/lookup.json?screen_name=\(screen_name)", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let user = TwitterUser((response as? Array<Any>)?[0] as! Dictionary<String, Any>)
+            success(user)
+            
+        }) { (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        }
     }
     
     func currentAccount(success: @escaping (User) -> (), failure: @escaping (Error) -> ())
@@ -111,8 +144,72 @@ class TwitterClient: BDBOAuth1SessionManager
             
         }, failure: { (task: URLSessionDataTask?, error: Error) in
             failure(error)
-            print(error.localizedDescription)
         })
+    }
+    
+    func retweet(tweet id: Int64, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ())
+    {
+        post("1.1/statuses/retweet/\(id).json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let tweet = Tweet(response as! NSDictionary)
+            success(tweet)
+            
+        }) { (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        }
+    }
+    
+    func unRetweet(tweet id: Int64, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ())
+    {
+        post("1.1/statuses/unretweet/\(id).json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let tweet = Tweet(response as! NSDictionary)
+            success(tweet)
+            
+        }) { (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        }
+    }
+    
+    func favorite(tweet id: Int64, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ())
+    {
+        post("1.1/favorites/create.json?id=\(id)", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let tweet = Tweet(response as! NSDictionary)
+            success(tweet)
+            
+        }) { (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        }
+    }
+    
+    func unFavorite(tweet id: Int64, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ())
+    {
+        post("1.1/favorites/destroy.json?id=\(id)", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let tweet = Tweet(response as! NSDictionary)
+            success(tweet)
+            
+        }) { (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        }
+    }
+    
+    func updateStatus(tweet text: String, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ())
+    {
+        post("1.1/statuses/update.json", parameters: ["status": text], progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
+            
+            let tweet = Tweet(response as! NSDictionary)
+            success(tweet)
+            
+        }) { (task: URLSessionDataTask?, error: Error) in
+            
+            failure(error)
+        }
     }
 
 }

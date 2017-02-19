@@ -16,15 +16,24 @@ PODS:
     - AFNetworking/NSURLSession
   - BDBOAuth1Manager (2.0.0):
     - AFNetworking/NSURLSession (~> 3.0.0)
+  - FaveButton (2.0.3)
+  - LFTwitterProfile (0.1.1):
+    - SnapKit (~> 3.0)
+  - SnapKit (3.1.2)
 
 DEPENDENCIES:
   - AFNetworking (~> 3.0)
   - BDBOAuth1Manager (~> 2.0.0)
+  - FaveButton (~> 2.0.3)
+  - LFTwitterProfile
 
 SPEC CHECKSUMS:
   AFNetworking: a0075feb321559dc78d9d85b55d11caa19eabb93
   BDBOAuth1Manager: 92d17d06f8a648602962304cd2f35ae7394fa001
+  FaveButton: cfcbc5e73da159c4f916613da5687357b5bb4783
+  LFTwitterProfile: 57cc1c1602e3b4cf297b3d80b85dff16b5257ad4
+  SnapKit: 12b24f569cb7c143acc9c22b9d91b23e7b1c84a2
 
-PODFILE CHECKSUM: b95b72f8c7960b285c660ec4e637e6a40076396a
+PODFILE CHECKSUM: 750d6a9cb81f1081616ccd9695c23b4204b75b96
 
 COCOAPODS: 1.1.1

@@ -40,21 +40,16 @@ class User: NSObject
     {
         get
         {
-            
-            print("getting current user")
             if _currentUser == nil
             {
-                print("Nil block is executing")
                 let defaults = UserDefaults.standard
                 if let userData = defaults.object(forKey: "currentUserData") as? Data
                 {
-                    print("They currentUserData key contains something")
-                    let dictionary = try! JSONSerialization.jsonObject(with: userData, options: []) as! Dictionary<String, Any>
+                    let dictionary = try!
+                        JSONSerialization.jsonObject(with: userData, options: []) as! Dictionary<String, Any>
                     
                    _currentUser = User(dictionary)
-                    print(_currentUser?.name ?? "user is still nil")
                 }
-              
             }
             
             return _currentUser
@@ -62,7 +57,6 @@ class User: NSObject
         
         set (user)
         {
-            
             _currentUser = user
             
             let defaults = UserDefaults.standard
@@ -70,16 +64,14 @@ class User: NSObject
             if let user = user
             {
                 let data = try! JSONSerialization.data(withJSONObject: user.dictionary!, options: [])
-                
                 defaults.set(data, forKey: "currentUserData")
-                print("setting data to soimething")
-            } else {
-                print("setting currentUserData to nil")
+            }
+            else
+            {
                 defaults.removeObject(forKey: "currentUserData")
             }
             
             defaults.synchronize()
-
         }
     }
 }
